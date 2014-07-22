@@ -5,7 +5,7 @@
 #include "arch/gba.thumb.cpp"
 #include "arch/snes.cpu.cpp"
 
-bool xkas::open(const char *filename) {
+bool xkas::open(const char *filename, unsigned fmt) {
   //try and open existing file
   if(binary.open(filename, file::mode::readwrite) == false) {
     //if unable to open, try creating a new file
@@ -14,10 +14,24 @@ bool xkas::open(const char *filename) {
       return false;
     }
   }
+  
+  format = fmt;
+  
+  patch_addr = 0;
+  if (format == format_IPS) {
+    // write IPS header
+    binary.write((const uint8_t*)"PATCH", 5);
+  }
   return true;
 }
 
 void xkas::close() {
+  if (format == format_IPS) {
+    write_IPS();
+    // write IPS EOF
+    binary.write((const uint8_t*)"EOF", 3);
+  }
+  
   binary.close();
 }
 
@@ -198,7 +212,24 @@ bool xkas::assemble_command(string &s) {
     //individual archs may have custom mappers which obviate the need for base;
     //therefore org sets base, so that base is not needed every time org is used
     state.org = state.base = decode(part[1]);
-    if(pass == 2) binary.seek(arch->fileaddr(state.org));
+    if(pass == 2)  {
+      unsigned fileaddr = arch->fileaddr(state.org);
+      
+      switch (format) {
+      default:
+        binary.seek(fileaddr);
+        break;
+        
+      case format_IPS:
+        // IPS patches are limited to 24-bit addresses
+        if (fileaddr >= 0x1000000) {
+          error = "IPS offset out of bounds";
+          return false;
+        }
+        // the actual address change will be done on the next write
+        break;
+      }
+    }
     return true;
   }
 
@@ -529,7 +560,43 @@ bool xkas::assemble_command(string &s) {
 }
 
 void xkas::write(uint8_t data) {
-  if(pass == 2) binary.write(data);
+  if(pass == 2) {
+    switch (format) {
+    default:
+      binary.write(data);
+      break;
+    
+    case format_IPS:
+      unsigned fileaddr = arch->fileaddr(state.org);
+      // write to patch data buffer, check if a new record needs to be written
+      // (either on an address change or when the buffer reaches 0xFFFF bytes)
+      if (patch_data.size() == 0) {
+        patch_addr = fileaddr;
+      } else if (fileaddr != patch_addr + patch_data.size() ||
+                 patch_data.size() == 0xFFFF) {
+        write_IPS();
+      }
+      
+      patch_data.append(data);
+      break;
+    }
+  }
   state.org++;
   state.base++;
+}
+
+// write the patch buffer into an IPS record
+void xkas::write_IPS() {
+  // record offset, big-endian
+  binary.write(patch_addr >> 16);
+  binary.write(patch_addr >> 8);
+  binary.write(patch_addr);
+  // record size, big-endian
+  binary.write(patch_data.size() >> 8);
+  binary.write(patch_data.size());
+  // record data
+  binary.write(&patch_data[0], patch_data.size());
+  
+  patch_addr = arch->fileaddr(state.org);
+  patch_data.reset();
 }

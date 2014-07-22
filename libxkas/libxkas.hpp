@@ -33,7 +33,8 @@ struct xkasArch {
 #include "arch/snes.cpu.hpp"
 
 struct xkas {
-  bool open(const char *filename);
+  enum Format { format_bin, format_IPS };
+  bool open(const char *filename, unsigned fmt = format_bin);
   bool assemble(const char *filename);
   void close();
   xkas();
@@ -45,8 +46,14 @@ private:
   string warning;
 
   //file manipulation
+  unsigned format;
   file binary;
   void write(uint8_t data);
+  
+  //format-specific file things (for patches, etc)
+  unsigned patch_addr;
+  linear_vector<uint8_t> patch_data;
+  void write_IPS();
 
   bool assemble_file(const char*);
   void assemble_defines(string&);

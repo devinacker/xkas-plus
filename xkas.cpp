@@ -1,12 +1,15 @@
 #include "libxkas/libxkas.hpp"
 
 int main(int argc, char **argv) {
+  xkas::Format format = xkas::format_bin;
   string outputFilename;
   lstring inputFilename;
 
   for(unsigned i = 1; i < argc; i++) {
     if(!strcmp(argv[i], "-o") && argc >= i + 1) {
       outputFilename = argv[++i];
+    } else if (!strcmp(argv[i], "-ips")) {
+      format = xkas::format_IPS;
     } else if(!strbegin(argv[i], "-")) {
       inputFilename.append(argv[i]);
     } else {
@@ -22,7 +25,7 @@ int main(int argc, char **argv) {
   }
 
   xkas as;
-  as.open(outputFilename);
+  as.open(outputFilename, format);
   foreach(filename, inputFilename) {
     if(as.assemble(filename) == false) break;
   }
