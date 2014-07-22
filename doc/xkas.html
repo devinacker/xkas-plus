@@ -1,0 +1,183 @@
+<html>
+<head>
+<title>xkas Documentation</title>
+<link href='style.css' rel='stylesheet' type='text/css'>
+</head>
+<body>
+<h1>xkas v14</h1>
+Author: byuu<br>
+License: public domain<br>
+<br>
+
+<h3>Command line:</h3>
+
+<code>xkas -o output.bin input.asm [second-input.asm ...]</code>
+
+<p>If the output file exists, xkas will assemble the source file on top of this
+file. If it does not exist, xkas will create the file.</p>
+
+<p>Usage examples:</p>
+<code>xkas -o output.bin input.asm</code><br>
+<code>xkas -o output.bin input1.asm input2.asm</code><br>
+<code>xkas input1.asm input2.asm -o output.bin</code><br>
+<br>
+
+<h3>Commands:</h3>
+
+<h4>arch type</h4>
+
+<p>Select processor architecture.</p>
+
+<p>Supported values:</p>
+<code>none</code> - None; uses base commands only<br>
+<code>gba.thumb</code> - GBA THUMB CPU (ARM7TDMI THUMB)<br>
+<code>snes.cpu</code> - SNES CPU (WDC 65816)<br>
+<br>
+
+<h4>endian type</h4>
+
+<p>Manually specify processor endian. This will affect dw, dl and dd commands.
+Note that selecting a processor architecture will automatically select endian.
+This is intended to be used for "arch none" only.</p>
+
+<p>Supported values:</p>
+<code>lsb</code> - Little endian<br>
+<code>msb</code> - Big endian<br>
+<br>
+
+<h4>incsrc filename.asm</h4>
+
+<p>Include additional source file. Note that this command is infinitely
+recursive. Eg file1.asm can incsrc file2.asm, which can incsrc file3.asm.
+Recursion is only limited to available memory. The state will remain unchanged,
+eg all defines and labels will remain in-tact.</p>
+
+<h4>incbin filename.bin</h4>
+
+<p>Insert binary file directly into output.</p>
+
+<h4>org offset</h4>
+
+<p>Seek to specified offset. Offset address relativity to output file is based
+upon the current architecture. Eg if arch = snes.cpu, org should be an
+SNES-memory-mapped offset. For arch = none, this is a literal offset into the
+output file.</p>
+
+<h4>base offset</h4>
+
+<p>Override internal org address when computing eg labels. This is useful for
+relocatable code and custom address mapping.</p>
+
+<p>Usage example:</p>
+
+<code>org $c02000; base $7f0000<br>
+lda #$00<br>
+loop:<br>
+jml loop //will assemble as jml $7f0002; while writing to pc($c02002)</code>
+<br><br>
+
+<h4>align modulus</h4>
+
+<p>Write 0x00s until offset is evenly divisible by modulus. Eg if offset is
+$8011, "align 4" will write three 0x00s, aligning offset to a 4-byte boundary;
+in this case, $8014.</p>
+
+<h4>db / dw / dl / dd value [, value, "string", ...]</h4>
+
+<p>Simple binary data insertion. These commands additionaly support
+quote-delimited 7-bit ANSI encoded strings.</p>
+
+<code>db</code> - Data byte (8-bits)<br>
+<code>dw</code> - Data word (16-bits)<br>
+<code>dl</code> - Data long (24-bits)<br>
+<code>dd</code> - Data double word (32-bits)<br>
+<br>
+
+<h4>fill length [, value]</h4>
+
+<p>Writes "length" number of bytes to output file. If value is not specified,
+write value is 0x00.</p>
+
+<h4>fillto offset [, value]</h4>
+
+<p>Writes until "offset" is reached. If value is not specified, write value is
+0x00.</p>
+
+<h4>define name "value"</h4>
+
+<p>Creates a new define, or overrides a previous define by the same name. Quotes
+are only needed if space is needed inside the define.</p>
+
+<p>Usage example:</p>
+
+<code>define add "clc; adc"<br>
+define health_bonus 32<br>
+{add}.w #{health_bonus} //will assemble as clc; adc.w #32</code>
+<br><br>
+
+<h4>define 'char' value</h4>
+
+<p>Redefine string table entry. "char" must be exactly one ANSI character in
+length, and "value" must resolve to an integer.</p>
+
+<p>Usage example:</p>
+
+<code>define 'C' $1234  //value can be up to 64-bits in length<br>
+lda.b #'C'  //will assemble as lda.b #$34<br>
+lda.w #'C'  //will assemble as lda.w #$1234<br>
+dw "C"  //will write #$1234 to output<br>
+<br><br>
+
+<h4>label:</h4>
+
+<p>Creates a new label. Can start with _[A-Za-z], can contain _[A-Za-z0-9].</p>
+
+<h4>.sublabel:</h4>
+
+<p>Creates a new sublabel. Must start with ., can contain _[A-Za-z0-9]. Sublabel
+is automatically prefixed with the most recently specified label. Example:</p>
+
+<code>label:<br>
+.sublabel: //will assemble as label.sublabel</code>
+<br><br>
+
+<h4>+ / - label:</h4>
+
+<p>Creates a nameless label. Will ignore active namespace. + is used to point
+to a label after the current code position, - is used to point before the
+current position. Can be redefined at any point in the code. Example:</p>
+
+<code>-; dex; beq +; ...; bra -<br>
++; rts</code>
+<br><br>
+
+<h4>namespace name</h4>
+
+<p>Sets the active namespace. When a label, sublabel or define is specified
+without a namespace prefix, it is automatically prefixed by the active namespace.
+This defaults to "global". Note that unlike C++ namespaces, this function is not
+recursive. There is only one namespace level. Example:</p>
+
+<code>namespace global<br>
+label:<br>
+.sublabel:<br>
+define def "0"<br>
+dw label, .sublabel, custom::label, custom::label.sublabel, {def}, {custom::def}<br>
+<br>
+namespace custom<br>
+label:<br>
+.sublabel:<br>
+define def "1"<br>
+dw label, .sublabel, global::label, global::label.sublabel, {def}, {global::def}</code>
+<br><br>
+
+<h4>print arg [, arg, "string", ...]</h4>
+
+<p>Prints specified message to the terminal. Example:</p>
+
+<code>org $8000<br>
+label1:<br>
+print "label1 offset = ", org //prints "label1 offset = 0x8000"</code>
+
+</body>
+</html>
