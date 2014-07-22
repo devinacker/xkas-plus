@@ -7,7 +7,8 @@
 
 bool xkas::open(const char *filename, unsigned fmt) {
   //try and open existing file
-  if(binary.open(filename, file::mode::readwrite) == false) {
+  //(or always create a new file when using a special format)
+  if(fmt != format_bin || binary.open(filename, file::mode::readwrite) == false) {
     //if unable to open, try creating a new file
     if(binary.open(filename, file::mode::write) == false) {
       //if unable to create, fail
