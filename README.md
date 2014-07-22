@@ -7,7 +7,7 @@ This is a fork of xkas v14, because I like xkas v14 and wanna touch it up a bit.
 - Support for more architectures (6502/65SC02/65CE02, SPC700, SuperFX, GB/Z80, etc)
 - Some useful system-specific directives for the above (to help manage NES ROM banks, etc)
 - Actual documentation of the above
-- Some useful(?) directives from older xkas versions (such as rep, fillbyte, pad, table, load/save/warnpc)
+- Some useful(?) directives from older xkas versions (such as rep, fillbyte, pad, table, warnpc)
 -- this means the return of support for character tables
 - Macros (another lost feature of xkas v06)
 -- not quite the highest priority
