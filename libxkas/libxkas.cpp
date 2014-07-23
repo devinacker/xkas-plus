@@ -549,6 +549,56 @@ bool xkas::assemble_command(string &s) {
     state.active_namespace = part[1];
     return true;
   }
+  
+  //=========
+  //= table =
+  //=========
+  if (part[0] == "table" && part.size() == 2) {
+    part[1].trim<1>("\"");
+    string data;
+    if(data.readfile(part[1]) == false) {
+      error = "open table file failed";
+      return false;
+    }
+    data.replace("\r", "");
+    lstring line;
+    line.split("\n", data);
+    
+    for(unsigned l = 0; l < line.size(); l++) {
+      lstring thisline;
+      thisline.split("=", line[l]);
+      uint8_t val;
+      char ch;
+      
+      // val=char
+      if (line[l].wildcard("??""=?")) {
+        val = strtol(thisline[0], 0, 16);
+        ch = thisline[1][0];
+        
+      // char=val
+      } else if (line[l].wildcard("?=??")) {
+        val = strtol(thisline[1], 0, 16);
+        ch = thisline[0][0];
+        
+      } else {
+        error = "invalid table entry on line ";
+        error.append(l + 1).append(": ").append(line[l]);
+        return false;
+      }
+      
+      state.table[ch] = val;
+    }
+    
+    return true;
+  }
+  
+  //==============
+  //= cleartable =
+  //==============
+  if (part[0] == "cleartable" && part.size() == 1) {
+    for(unsigned i = 0; i < 256; i++) state.table[i] = i;
+    return true;
+  }
 
   //=========
   //= print =

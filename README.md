@@ -2,15 +2,22 @@
 
 This is a fork of xkas v14, because I like xkas v14 and wanna touch it up a bit. I may rename it later.
 
+## What's new
+- Ability to assemble directly to an IPS patch instead of a binary (with the `-ips` switch)
+- New directives (mostly for increased xkas v06 compatibility):
+  - `fillbyte` / `padbyte` - specifies a default value for the `fill` and `fillto` directives
+    (these were originally two separate directives in v06, though I may make them distinct later)
+  - `pad` - identical to `fillto`
+  - `table` - allows you to specify a .tbl file to use for custom character encoding (one byte per character only)
+    - `cleartable` - restores the default encoding
+
 ## Goals
-- Ability to assemble directly to a patch file (IPS, etc) instead of an actual binary
 - Support for more architectures (6502/65SC02/65CE02, SPC700, SuperFX, GB/Z80, etc)
 - Some useful system-specific directives for the above (to help manage NES ROM banks, etc)
 - Actual documentation of the above
-- Some useful(?) directives from older xkas versions (such as rep, fillbyte, pad, table, warnpc)
--- this means the return of support for character tables
+- Some other useful(?) directives, including from older xkas versions (such as warnpc and whatever else)
 - Macros (another lost feature of xkas v06)
--- not quite the highest priority
+  - not quite the highest priority
 
 ## Why not bass?
 bass was actually my original target for this project, but in using and modifying it I found a lot of bad flaws with the way bass parses code (think about the words "unintentionally significant whitespace" if you want an idea) that would have been a real pain to fix in an actually satisfactory way.
