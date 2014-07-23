@@ -5,7 +5,7 @@ This is a fork of xkas v14, because I like xkas v14 and wanna touch it up a bit.
 ## What's new
 - Ability to assemble directly to an IPS patch instead of a binary (with the `-ips` switch)
 - New directives (mostly for increased xkas v06 compatibility):
-  - `fillbyte` / `padbyte` - specifies a default value for the `fill` and `fillto` directives
+  - `fillbyte` / `padbyte` - specifies a default value for the `fill`, `fillto`, and `align` directives
     (these were originally two separate directives in v06, though I may make them distinct later)
   - `pad` - identical to `fillto`
   - `table` - allows you to specify a .tbl file to use for custom character encoding (one byte per character only)

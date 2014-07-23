@@ -248,7 +248,7 @@ bool xkas::assemble_command(string &s) {
   //=========
   if(part[0] == "align" && part.size() == 2) {
     unsigned align = decode(part[1]);
-    while(state.base % align) write(0x00);
+    while(state.base % align) write(state.fill_byte);
     return true;
   }
 
