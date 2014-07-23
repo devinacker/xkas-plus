@@ -293,11 +293,11 @@ bool xkas::assemble_command(string &s) {
   //==========
   if (part[0] == "warnpc" && part.size() == 2) {
     unsigned val = decode(part[1]);
-	if (state.org >= val) {
-	  error = "pc = $"; error.append(strhex(state.org));
-	  return false;
-	}
-	return true;
+    if (state.org >= val) {
+      error = "pc = $"; error.append(strhex(state.org));
+      return false;
+    }
+    return true;
   }
   
   //========
@@ -566,9 +566,22 @@ bool xkas::assemble_command(string &s) {
   //= table =
   //=========
   if (part[0] == "table" && part.size() == 2) {
-    part[1].trim<1>("\"");
+    bool force_ltr = false;
+    bool force_rtl = false;
+    lstring name;
+    name.split(",", part[1]);
+    if (name[1] == "ltr") {
+      force_ltr = true;
+    } else if (name[1] == "rtl") {
+      force_rtl = true;
+    } else if (name[1] != "") {
+      error = "expected \"filename,ltr\" or \"filename,rtl\"";
+      return false;
+    }
+	
+    name[0].trim<1>("\"");
     string data;
-    if(data.readfile(part[1]) == false) {
+    if(data.readfile(name[0]) == false) {
       error = "open table file failed";
       return false;
     }
@@ -583,12 +596,12 @@ bool xkas::assemble_command(string &s) {
       char ch;
       
       // val=char
-      if (line[l].wildcard("??""=?")) {
+      if (!force_rtl && line[l].wildcard("??""=?")) {
         val = strtol(thisline[0], 0, 16);
         ch = thisline[1][0];
         
       // char=val
-      } else if (line[l].wildcard("?=??")) {
+      } else if (!force_ltr && line[l].wildcard("?=??")) {
         val = strtol(thisline[1], 0, 16);
         ch = thisline[0][0];
         
