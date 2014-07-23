@@ -53,6 +53,7 @@ bool xkas::assemble(const char *filename) {
     state.plus_label_counter = 1;
     state.minus_label_counter = 1;
     for(unsigned i = 0; i < 256; i++) state.table[i] = i;
+    state.fill_byte = 0;
 
     //arch
     arch_none.init(pass);
@@ -294,7 +295,7 @@ bool xkas::assemble_command(string &s) {
     lstring subpart;
     subpart.split(",", part[1]);
     unsigned length = decode(subpart[0]);
-    uint8_t n = (subpart.size() == 1 ? 0x00 : decode(subpart[1]));
+    uint8_t n = (subpart.size() == 1 ? state.fill_byte : decode(subpart[1]));
     for(unsigned i = 0; i < length; i++) write(n);
     return true;
   }
@@ -306,8 +307,22 @@ bool xkas::assemble_command(string &s) {
     lstring subpart;
     subpart.split(",", part[1]);
     unsigned offset = decode(subpart[0]);
-    uint8_t n = (subpart.size() == 1 ? 0x00 : decode(subpart[1]));
+    uint8_t n = (subpart.size() == 1 ? state.fill_byte : decode(subpart[1]));
     while(arch->archaddr(binary.offset()) < offset) write(n);
+    return true;
+  }
+  
+  //============
+  //= fillbyte =
+  //============
+  if (part[0] == "fillbyte" && part.size() == 2) {
+    unsigned n = decode(part[1]);
+    if (n > 0x100) {
+      error = "fill value out of bounds";
+      return false;
+    }
+    
+    state.fill_byte = n;
     return true;
   }
 

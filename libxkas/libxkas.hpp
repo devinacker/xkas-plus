@@ -93,6 +93,7 @@ private:
     unsigned plus_label_counter;
     unsigned minus_label_counter;
     uint64_t table[256];
+    uint8_t fill_byte;
   } state;
 
   //tool
