@@ -10,12 +10,13 @@ This is a fork of xkas v14, because I like xkas v14 and wanna touch it up a bit.
   - `pad` - identical to `fillto`
   - `table` - allows you to specify a .tbl file to use for custom character encoding (one byte per character only)
     - `cleartable` - restores the default encoding
+  - `warnpc` - verifies that code is being assembled below a given address
 
 ## Goals
 - Support for more architectures (6502/65SC02/65CE02, SPC700, SuperFX, GB/Z80, etc)
 - Some useful system-specific directives for the above (to help manage NES ROM banks, etc)
 - Actual documentation of the above
-- Some other useful(?) directives, including from older xkas versions (such as warnpc and whatever else)
+- Some other useful(?) directives, including from older xkas versions
 - Macros (another lost feature of xkas v06)
   - not quite the highest priority
 

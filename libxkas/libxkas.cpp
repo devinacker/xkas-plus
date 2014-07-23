@@ -287,7 +287,19 @@ bool xkas::assemble_command(string &s) {
     fp.close();
     return true;
   }
-
+  
+  //==========
+  //= warnpc =
+  //==========
+  if (part[0] == "warnpc" && part.size() == 2) {
+    unsigned val = decode(part[1]);
+	if (state.org >= val) {
+	  error = "pc = $"; error.append(strhex(state.org));
+	  return false;
+	}
+	return true;
+  }
+  
   //========
   //= fill =
   //========
