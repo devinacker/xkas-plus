@@ -303,7 +303,7 @@ bool xkas::assemble_command(string &s) {
   //==========
   //= fillto =
   //==========
-  if(part[0] == "fillto" && part.size() == 2) {
+  if((part[0] == "fillto" || part[0] == "pad") && part.size() == 2) {
     lstring subpart;
     subpart.split(",", part[1]);
     unsigned offset = decode(subpart[0]);
@@ -315,7 +315,7 @@ bool xkas::assemble_command(string &s) {
   //============
   //= fillbyte =
   //============
-  if (part[0] == "fillbyte" && part.size() == 2) {
+  if ((part[0] == "fillbyte" || part[0] == "padbyte") && part.size() == 2) {
     unsigned n = decode(part[1]);
     if (n > 0x100) {
       error = "fill value out of bounds";
