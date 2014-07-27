@@ -603,16 +603,16 @@ bool xkas::assemble_command(string &s) {
     for(unsigned l = 0; l < line.size(); l++) {
       lstring thisline;
       thisline.split("=", line[l]);
-      uint8_t val;
+      uint64_t val;
       char ch;
       
       // val=char
-      if (!force_rtl && line[l].wildcard("??""=?")) {
+      if (!force_rtl && line[l].wildcard("*=?")) {
         val = strtol(thisline[0], 0, 16);
         ch = thisline[1][0];
         
       // char=val
-      } else if (!force_ltr && line[l].wildcard("?=??")) {
+      } else if (!force_ltr && line[l].wildcard("?=*")) {
         val = strtol(thisline[1], 0, 16);
         ch = thisline[0][0];
         

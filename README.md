@@ -11,7 +11,7 @@ This is a fork of xkas v14, because I like xkas v14 and wanna touch it up a bit.
   - `fillbyte` / `padbyte` - specifies a default value for the `fill`, `fillto`, and `align` directives
     (these were originally two separate directives in v06, though I may make them distinct later)
   - `pad` - identical to `fillto`
-  - `table` - allows you to specify a .tbl file to use for custom character encoding (one byte per character only)
+  - `table` - allows you to specify a .tbl file to use for custom character encoding (up to four bytes per 8-bit character)
     - `cleartable` - restores the default encoding
   - `warnpc` - verifies that code is being assembled below a given address
 - Directives for `6502` / `nes.cpu`:
