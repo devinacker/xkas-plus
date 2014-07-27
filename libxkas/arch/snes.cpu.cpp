@@ -21,6 +21,18 @@ unsigned xkasSNESCPU::archaddr(unsigned addr) {
       addr = 0xc00000 + (addr & 0x3fffff);
       break;
     }
+    
+    case ExLoROM: {
+      addr = ((addr & 0x7f8000) << 1) + 0x8000 + (addr & 0x7fff) ^ 0x800000;
+      break;
+    }
+    
+    case ExHiROM: {
+      addr = 0xc00000 + (addr & 0x7fffff);
+      if (addr >= 0x1000000)
+        addr ^= 0x1400000;
+      break;
+    }
   }
 
   return addr;
@@ -40,6 +52,19 @@ unsigned xkasSNESCPU::fileaddr(unsigned addr) {
 
     case HiROM: {
       addr = addr & 0x3fffff;
+      break;
+    }
+    
+    case ExLoROM: {
+      addr = (((addr ^ 0x800000) & 0xff0000) >> 1) + (addr & 0x7fff);
+      break;
+    }
+
+    case ExHiROM: {
+      if (addr >= 0x800000)
+        addr &= 0x3fffff;
+      else
+        addr = (addr & 0x3fffff) | 0x400000;
       break;
     }
   }
@@ -66,6 +91,16 @@ bool xkasSNESCPU::assemble_command(string &s) {
 
   if(part[0] == "hirom") {
     mapper = HiROM;
+    return true;
+  }
+
+  if(part[0] == "exlorom") {
+    mapper = ExLoROM;
+    return true;
+  }
+
+  if(part[0] == "exhirom") {
+    mapper = ExHiROM;
     return true;
   }
 

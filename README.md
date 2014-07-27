@@ -11,6 +11,8 @@ This is a fork of xkas v14, because I like xkas v14 and wanna touch it up a bit.
   - `table` - allows you to specify a .tbl file to use for custom character encoding (one byte per character only)
     - `cleartable` - restores the default encoding
   - `warnpc` - verifies that code is being assembled below a given address
+- New directives for `snes.cpu`:
+  - `exlorom` / `exhirom` mapping modes
 
 ## Goals
 - Support for more architectures (6502/65SC02/65CE02, SPC700, SuperFX, GB/Z80, etc)

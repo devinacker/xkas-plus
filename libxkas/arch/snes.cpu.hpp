@@ -10,6 +10,8 @@ private:
     NoROM,
     LoROM,
     HiROM,
+    ExLoROM,
+    ExHiROM,
   } mapper;
   bool header;
   bool force_byte, force_word, force_long;
