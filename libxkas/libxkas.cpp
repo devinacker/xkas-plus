@@ -4,6 +4,7 @@
 #include "arch/none.cpp"
 #include "arch/gba.thumb.cpp"
 #include "arch/snes.cpu.cpp"
+#include "arch/6502.cpp"
 
 bool xkas::open(const char *filename, unsigned fmt) {
   //try and open existing file
@@ -59,6 +60,7 @@ bool xkas::assemble(const char *filename) {
     arch_none.init(pass);
     arch_gba_thumb.init(pass);
     arch_snes_cpu.init(pass);
+    arch_6502.init(pass);
 
     if(assemble_file(filename) == false) return false;
   }
@@ -66,8 +68,12 @@ bool xkas::assemble(const char *filename) {
   return true;
 }
 
-xkas::xkas() : arch_none(*this), arch_gba_thumb(*this), arch_snes_cpu(*this) {
-}
+xkas::xkas() : 
+  arch_none(*this), 
+  arch_gba_thumb(*this), 
+  arch_snes_cpu(*this),
+  arch_6502(*this)
+{}
 
 //========
 //internal
@@ -161,6 +167,10 @@ bool xkas::assemble_command(string &s) {
     } else if(part[1] == "65816" || part[1] == "snes.cpu") {
       endian = endian_lsb;
       arch = &arch_snes_cpu;
+      return true;
+    } else if(part[1] == "6502" || part[1] == "nes.cpu") {
+      endian = endian_lsb;
+      arch = &arch_6502;
       return true;
     }
 
@@ -320,7 +330,8 @@ bool xkas::assemble_command(string &s) {
     subpart.split(",", part[1]);
     unsigned offset = decode(subpart[0]);
     uint8_t n = (subpart.size() == 1 ? state.fill_byte : decode(subpart[1]));
-    while(arch->archaddr(binary.offset()) < offset) write(n);
+    // offset is converted from arch->file->arch to handle bank mirroring correctly
+    while(arch->archaddr(binary.offset()) < arch->archaddr(arch->fileaddr(offset))) write(n);
     return true;
   }
   
@@ -578,7 +589,7 @@ bool xkas::assemble_command(string &s) {
       error = "expected \"filename,ltr\" or \"filename,rtl\"";
       return false;
     }
-	
+    
     name[0].trim<1>("\"");
     string data;
     if(data.readfile(name[0]) == false) {
