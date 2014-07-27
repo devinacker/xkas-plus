@@ -158,7 +158,7 @@ bool xkas::assemble_command(string &s) {
       endian = endian_lsb;
       arch = &arch_gba_thumb;
       return true;
-    } else if(part[1] == "snes.cpu") {
+    } else if(part[1] == "65816" || part[1] == "snes.cpu") {
       endian = endian_lsb;
       arch = &arch_snes_cpu;
       return true;

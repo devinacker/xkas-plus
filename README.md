@@ -4,6 +4,8 @@ This is a fork of xkas v14, because I like xkas v14 and wanna touch it up a bit.
 
 ## What's new
 - Ability to assemble directly to an IPS patch instead of a binary (with the `-ips` switch)
+- New architecture options:
+  - `65816` - identical to `snes.cpu`
 - New directives (mostly for increased xkas v06 compatibility):
   - `fillbyte` / `padbyte` - specifies a default value for the `fill`, `fillto`, and `align` directives
     (these were originally two separate directives in v06, though I may make them distinct later)
@@ -11,7 +13,7 @@ This is a fork of xkas v14, because I like xkas v14 and wanna touch it up a bit.
   - `table` - allows you to specify a .tbl file to use for custom character encoding (one byte per character only)
     - `cleartable` - restores the default encoding
   - `warnpc` - verifies that code is being assembled below a given address
-- New directives for `snes.cpu`:
+- New directives for `65816` / `snes.cpu`:
   - `exlorom` / `exhirom` mapping modes
 
 ## Goals
