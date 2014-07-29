@@ -43,13 +43,13 @@ bool xkas6502::assemble_command(string &s) {
       self.error = "bank size cannot exceed 0x10000";
       return false;
     }
-	bank_size = n;
+    bank_size = n;
     return true;
   }
   
   if (part[0] == "bank" && part.size() == 2) {
     bank = self.decode(part[1]);
-	return true;
+    return true;
   }
 
   if(part.size() == 1) {
@@ -59,7 +59,7 @@ bool xkas6502::assemble_command(string &s) {
 
   if(part[1].wildcard("#*")) {
     part[1].ltrim<1>("#");
-	force_test();
+    force_test();
     if(assemble_const()) return true;
     return false;
   }
