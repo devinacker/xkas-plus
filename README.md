@@ -4,6 +4,11 @@ This is a fork of xkas v14, because I like xkas v14 and wanna touch it up a bit.
 
 ## What's new
 - Ability to assemble directly to an IPS patch instead of a binary (with the `-ips` switch)
+- Ability to export defines and labels to a separate file (with the `-e filename` switch)  
+  Supported output formats:
+  - `*.asm` - assembly include
+  - `*.ram.nl` - FCEUX debug symbols (labels only)
+  - `*.vs` - VICE debug symbols (labels only)
 - New architecture options:
   - `6502` / `nes.cpu` - MOS 6502
   - `65816` - identical to `snes.cpu`

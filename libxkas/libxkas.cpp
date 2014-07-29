@@ -27,6 +27,67 @@ bool xkas::open(const char *filename, unsigned fmt) {
   return true;
 }
 
+bool xkas::exportFile(const char *filename) {
+  file exp;
+  if (!exp.open(filename, file::mode::write)) return false;
+  
+  unsigned fmt = export_asm;
+  if      (strend(filename, ".ram.nl")) fmt = export_FCEUX;
+  else if (strend(filename, ".vs"))     fmt = export_VICE;
+  
+  // export defines
+  foreach(define, state.define) {
+    switch (fmt) {
+    case export_asm:
+      exp.print<string>({"define ", define.name, " \"", define.value, "\"\n"});
+      break;
+    
+    // TODO: export defines for FCEUX and VICE?
+    }
+  }
+  
+  // export labels
+  string ns, lname;
+  lstring name;
+  foreach(label, state.label) {
+    // skip anonymous labels
+    if (label.name[0] == '+' || label.name[0] == '-')
+      continue;
+  
+    name.split("::", label.name);
+    if (name[0] == "global") {
+      lname = name[1];
+    } else {
+      lname = label.name;
+    }
+    
+    switch (fmt) {
+    // regular xkas include
+    case export_asm:
+      // track namespaces
+      if (ns != name[0]) {
+        ns = name[0];
+        exp.print<string>({"namespace ", ns, "\n"});
+      }
+      exp.print<string>({"base $", strhex<4>(label.offset), "; ", name[1], ":\n"});
+      break;
+    
+    // FCEUX symbol file (*.ram.nl)
+    case export_FCEUX:
+      exp.print<string>({"$", strhex<4>(label.offset), "#", lname, "#\n"});
+      break;
+    
+    // VICE symbol file (*.vs)
+    case export_VICE:
+      exp.print<string>({"al C:", strhex(label.offset), " .", lname, "\n"});
+      break;
+    }
+  }
+  
+  exp.close();
+  return true;
+}
+
 void xkas::close() {
   if (format == format_IPS) {
     write_IPS();
