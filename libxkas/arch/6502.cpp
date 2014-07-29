@@ -59,7 +59,7 @@ bool xkas6502::assemble_command(string &s) {
 
   if(part[1].wildcard("#*")) {
     part[1].ltrim<1>("#");
-    force_test();
+	force_test();
     if(assemble_const()) return true;
     return false;
   }
@@ -168,6 +168,7 @@ bool xkas6502::assemble_direct() {
 }
 
 bool xkas6502::assemble_const() {
+  if(force_word) return false;
   #define match(str_, hex_) \
     if(part[0] == str_) { \
       unsigned n = self.decode(part[1]); \
@@ -181,22 +182,6 @@ bool xkas6502::assemble_const() {
       unsigned n = self.decode(part[1]); \
       self.write(hex_); \
       self.write(n); \
-      return true; \
-    }
-  #define matchw(str_, hex_) \
-    if(part[0] == str_) { \
-      unsigned n = self.decode(part[1]); \
-      self.write(hex_); \
-      self.write(n); \
-      self.write(n >> 8); \
-      return true; \
-    }
-  #define matchv(str_, hex_) \
-    if(part[0] == str_) { \
-      unsigned n = self.decode(part[1]); \
-      self.write(hex_); \
-      self.write(n); \
-      if(!force_byte) self.write(n >> 8); \
       return true; \
     }
 
@@ -231,51 +216,41 @@ bool xkas6502::assemble_const() {
   match("tya", 0x98)
   
   //const matches
-  matchv("adc", 0x69)
-  matchv("and", 0x29)
+  matchb("adc", 0x69)
+  matchb("and", 0x29)
   matchb("brk", 0x00)
-  matchv("cmp", 0xc9)
-  matchv("cpx", 0xe0)
-  matchv("cpy", 0xc0)
-  matchv("eor", 0x49)
-  matchv("lda", 0xa9)
-  matchv("ldx", 0xa2)
-  matchv("ldy", 0xa0)
-  matchv("ora", 0x09)
-  matchv("sbc", 0xe9)
+  matchb("cmp", 0xc9)
+  matchb("cpx", 0xe0)
+  matchb("cpy", 0xc0)
+  matchb("eor", 0x49)
+  matchb("lda", 0xa9)
+  matchb("ldx", 0xa2)
+  matchb("ldy", 0xa0)
+  matchb("ora", 0x09)
+  matchb("sbc", 0xe9)
   #undef match
   #undef matchb
-  #undef matchw
-  #undef matchv
   return false;
 }
 
 bool xkas6502::assemble_indirect_x() {
-  #define matchb(str_, hex_) \
+  if(force_word) return false;
+  #define match(str_, hex_) \
     if(part[0] == str_ && !force_word) { \
       unsigned n = self.decode(part[1]); \
       self.write(hex_); \
       self.write(n); \
       return true; \
     }
-  #define matchw(str_, hex_) \
-    if(part[0] == str_ && !force_byte) { \
-      unsigned n = self.decode(part[1]); \
-      self.write(hex_); \
-      self.write(n); \
-      self.write(n >> 8); \
-      return true; \
-    }
-  matchb("adc", 0x61)
-  matchb("and", 0x21)
-  matchb("cmp", 0xc1)
-  matchb("eor", 0x41)
-  matchb("lda", 0xa1)
-  matchb("ora", 0x01)
-  matchb("sbc", 0xe1)
-  matchb("sta", 0x81)
-  #undef matchb
-  #undef matchw
+  match("adc", 0x61)
+  match("and", 0x21)
+  match("cmp", 0xc1)
+  match("eor", 0x41)
+  match("lda", 0xa1)
+  match("ora", 0x01)
+  match("sbc", 0xe1)
+  match("sta", 0x81)
+  #undef match
   return false;
 }
 
@@ -301,14 +276,8 @@ bool xkas6502::assemble_indirect_y() {
 }
 
 bool xkas6502::assemble_indirect() {
-  #define matchb(str_, hex_) \
-    if(part[0] == str_ && !force_word) { \
-      unsigned n = self.decode(part[1]); \
-      self.write(hex_); \
-      self.write(n); \
-      return true; \
-    }
-  #define matchw(str_, hex_) \
+  if(force_byte) return false;
+  #define match(str_, hex_) \
     if(part[0] == str_ && !force_byte) { \
       unsigned n = self.decode(part[1]); \
       self.write(hex_); \
@@ -316,9 +285,8 @@ bool xkas6502::assemble_indirect() {
       self.write(n >> 8); \
       return true; \
     }
-  matchw("jmp", 0x6c)
-  #undef matchb
-  #undef matchw
+  match("jmp", 0x6c)
+  #undef match
   return false;
 }
 
