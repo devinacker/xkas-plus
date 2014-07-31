@@ -57,52 +57,20 @@ bool xkas6502::assemble_command(string &s) {
     return false;
   }
 
-  if(part[1].wildcard("#*")) {
-    part[1].ltrim<1>("#");
-    force_test();
-    if(assemble_const()) return true;
-    return false;
-  }
-
-  if(part[1].wildcard("(*,x)")) {
-    part[1].ltrim<1>("(");
-    part[1].rtrim<1>(",x)");
-    force_test();
-    if(assemble_indirect_x()) return true;
-    return false;
-  }
-
-  if(part[1].wildcard("(*),y")) {
-    part[1].ltrim<1>("(");
-    part[1].rtrim<1>("),y");
-    force_test();
-    if(assemble_indirect_y()) return true;
-    return false;
-  }
-
-  if(part[1].wildcard("(*)")) {
-    part[1].ltrim<1>("(");
-    part[1].rtrim<1>(")");
-    force_test();
-    if(assemble_indirect()) return true;
-    return false;
-  }
-
-  if(part[1].wildcard("*,x")) {
-    part[1].rtrim<1>(",x");
-    force_test();
-    if(assemble_addr_x()) return true;
-    if(assemble_dp_x()) return true;
-    return false;
-  }
-
-  if(part[1].wildcard("*,y")) {
-    part[1].rtrim<1>(",y");
-    force_test();
-    if(assemble_addr_y()) return true;
-    if(assemble_dp_y()) return true;
-    return false;
-  }
+  #define match(_l, _r, _fn) \
+    if (part[1].wildcard(_l "*" _r)) { \
+      part[1].ltrim<1>(_l); \
+      part[1].rtrim<1>(_r); \
+      force_test(); \
+      return _fn; \
+    }
+  match("#", "",    assemble_const())
+  match("(", ",x)", assemble_indirect_x())
+  match("(", "),y", assemble_indirect_y())
+  match("(", ")",   assemble_indirect())
+  match("",  ",x",  assemble_addr_x() || assemble_dp_x())
+  match("",  ",y",  assemble_addr_y() || assemble_dp_y())
+  #undef match
 
   if(assemble_branch()) return true;
 
