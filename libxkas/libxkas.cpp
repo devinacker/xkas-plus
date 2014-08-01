@@ -84,6 +84,11 @@ bool xkas::exportFile(const char *filename) {
 		}
 	}
 	
+	// export_asm: reset namespace after defining all labels
+	if (fmt == export_asm && ns != "global") {
+		exp.print("namespace global\n");
+	}
+	
 	exp.close();
 	return true;
 }
