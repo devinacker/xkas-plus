@@ -39,10 +39,17 @@ bool xkas6502::assemble_command(string &s) {
 	
 	if (part[0] == "banksize" && part.size() == 2) {
 		unsigned n = self.decode(part[1]);
-		if (n > 0x10000) {
-			self.error = "bank size cannot exceed 0x10000";
+		if (!n) {
+			self.error = "bank size cannot be zero";
 			return false;
-		}
+		} else if (n > 0x10000) {
+			self.error = "bank size cannot exceed $10000";
+			return false;
+		} else if (0x10000 % n) {
+			// since I can't think of any instance where it wouldn't...
+			self.error = "bank size must evenly divide $10000";
+			return false;
+		} 
 		bank_size = n;
 		return true;
 	}
