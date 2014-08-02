@@ -23,17 +23,16 @@ This is a fork of xkas v14, because I like xkas v14 and wanna touch it up a bit.
   - `bank` - set current program bank (default `0`)
   - `banksize` - set size of program banks (default/maximum `$10000`)
     - These two directives control the mapping between physical and logical addresses. For example:  
-      ```
-      noheader
-      banksize $2000
-      bank 0
-      org $8000 // assembles to file offset $0000
-      org $9000 // assembles to file offset $1000
-      bank 1
-      org $8000 // assembles to file offset $2000
-      org $9000 // assembles to file offset $3000
-      org $a000 // assembles to file offset $2000 (not $4000!)
-      ```
+    ```noheader
+    banksize $2000
+    bank 0
+    org $8000 // assembles to file offset $0000
+    org $9000 // assembles to file offset $1000
+    bank 1
+    org $8000 // assembles to file offset $2000
+    org $9000 // assembles to file offset $3000
+    org $a000 // assembles to file offset $2000 (not $4000!)
+	```
   - `header` / `noheader` - behave the same as their `snes.cpu` counterparts, but for a 16-byte iNES header instead of a 512-byte SNES copier header.
     - The default is `noheader`, so you can insert an iNES header manually before using the `header` directive for the actual ROM contents. The `header` directive does not generate an iNES header on its own.
     
