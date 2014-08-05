@@ -4,14 +4,16 @@ This is a fork of xkas v14, because I like xkas v14 and wanna touch it up a bit.
 
 ## What's new
 - Ability to assemble directly to an IPS patch instead of a binary (with the `-ips` switch)
+- New architecture options:
+  - `6502` / `nes.cpu` - MOS 6502
+  - `65c02` - WDC 65C02 (untested)
+  - `65ce02` - CSG 65CE02 (untested)
+  - `65816` - identical to `snes.cpu`
 - Ability to export defines and labels to a separate file (with the `-e filename` switch)  
   Supported output formats:
   - `*.asm` - assembly include
   - `*.ram.nl` - FCEUX debug symbols (labels only)
   - `*.vs` - VICE debug symbols (labels only)
-- New architecture options:
-  - `6502` / `nes.cpu` - MOS 6502
-  - `65816` - identical to `snes.cpu`
 - New directives (mostly for increased xkas v06 compatibility):
   - `fillbyte` / `padbyte` - specifies a default value for the `fill`, `fillto`, and `align` directives
     (these were originally two separate directives in v06, though I may make them distinct later)
@@ -40,7 +42,7 @@ This is a fork of xkas v14, because I like xkas v14 and wanna touch it up a bit.
   - `exlorom` / `exhirom` mapping modes
 
 ## Goals
-- Support for more architectures (65SC02/65CE02, SPC700, SuperFX, GB/Z80, etc)
+- Support for more architectures (Hu6280, SPC700, SuperFX, GB/Z80, etc)
   - Support for undocumented 65xx opcodes
 - Some useful system-specific directives for the above (to help manage NES ROM banks, etc)
 - Actual documentation of the above

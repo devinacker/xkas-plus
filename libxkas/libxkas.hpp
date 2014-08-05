@@ -32,6 +32,8 @@ struct xkasArch {
 #include "arch/gba.thumb.hpp"
 #include "arch/snes.cpu.hpp"
 #include "arch/6502.hpp"
+#include "arch/65c02.hpp"
+#include "arch/65ce02.hpp"
 
 struct xkas {
 	enum Format { format_bin, format_IPS };
@@ -70,10 +72,14 @@ private:
 	xkasGBATHUMB arch_gba_thumb;
 	xkasSNESCPU arch_snes_cpu;
 	xkas6502 arch_6502;
+	xkas65c02 arch_65c02;
+	xkas65ce02 arch_65ce02;
 	friend class xkasNone;
 	friend class xkasGBATHUMB;
 	friend class xkasSNESCPU;
 	friend class xkas6502;
+	friend class xkas65c02;
+	friend class xkas65ce02;
 
 	struct Define {
 		string name;

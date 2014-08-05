@@ -5,6 +5,8 @@
 #include "arch/gba.thumb.cpp"
 #include "arch/snes.cpu.cpp"
 #include "arch/6502.cpp"
+#include "arch/65c02.cpp"
+#include "arch/65ce02.cpp"
 
 bool xkas::open(const char *filename, unsigned fmt) {
 	//try and open existing file
@@ -138,7 +140,9 @@ xkas::xkas() :
 	arch_none(*this), 
 	arch_gba_thumb(*this), 
 	arch_snes_cpu(*this),
-	arch_6502(*this)
+	arch_6502(*this),
+	arch_65c02(*this),
+	arch_65ce02(*this)
 {}
 
 //========
@@ -237,6 +241,14 @@ bool xkas::assemble_command(string &s) {
 		} else if(part[1] == "6502" || part[1] == "nes.cpu") {
 			endian = endian_lsb;
 			arch = &arch_6502;
+			return true;
+		} else if(part[1] == "65c02") {
+			endian = endian_lsb;
+			arch = &arch_65c02;
+			return true;
+		} else if(part[1] == "65ce02") {
+			endian = endian_lsb;
+			arch = &arch_65ce02;
 			return true;
 		}
 
