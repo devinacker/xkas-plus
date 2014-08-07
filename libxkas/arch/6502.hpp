@@ -18,7 +18,6 @@ private:
 	bool assemble_indirect_x();
 	bool assemble_indirect_y();
 	bool assemble_indirect();
-	bool assemble_indirect_long();
 	bool assemble_addr_x();
 	bool assemble_dp_x();
 	bool assemble_addr_y();
