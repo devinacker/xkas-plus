@@ -9,6 +9,7 @@ This is a fork of xkas v14, because I like xkas v14 and wanna touch it up a bit.
   - `65c02` - WDC 65C02 (untested)
   - `65ce02` - CSG 65CE02 (untested)
   - `65816` - identical to `snes.cpu`
+  - `huc6280` / `pce.cpu` / `tg16.cpu` - Hudson HuC6280 (untested)
 - Ability to export defines and labels to a separate file (with the `-e filename` switch)  
   Supported output formats:
   - `*.asm` - assembly include
@@ -42,7 +43,7 @@ This is a fork of xkas v14, because I like xkas v14 and wanna touch it up a bit.
   - `exlorom` / `exhirom` mapping modes
 
 ## Goals
-- Support for more architectures (Hu6280, SPC700, SuperFX, GB/Z80, etc)
+- Support for more architectures (SPC700, SuperFX, GB/Z80, etc)
   - Support for undocumented 65xx opcodes
 - Some useful system-specific directives for the above (to help manage NES ROM banks, etc)
 - Actual documentation of the above
