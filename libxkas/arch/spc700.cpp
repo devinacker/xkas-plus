@@ -682,7 +682,6 @@ bool xkasSPC700::assemble_branch() {
 	
 	// two stupid special cases
 	// cbne $dp+x, label
-	fflush(stdout);
 	if (subpart[0].wildcard("*+x")) {
 		subpart[0].rtrim<1>("+x");
 		matchb("cbne", 0xde)
