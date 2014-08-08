@@ -741,7 +741,8 @@ bool xkasSPC700::assemble_bit() {
 	} else if (subpart[2] == "C" || subpart[2] == "c") {
 		match("mov1", 0, 0xca)
 	} 
-	
+	#undef match
+	#undef matchn
 	return false;
 }
 
