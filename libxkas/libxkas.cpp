@@ -8,6 +8,7 @@
 #include "arch/65c02.cpp"
 #include "arch/65ce02.cpp"
 #include "arch/huc6280.cpp"
+#include "arch/spc700.cpp"
 
 bool xkas::open(const char *filename, unsigned fmt) {
 	//try and open existing file
@@ -130,6 +131,10 @@ bool xkas::assemble(const char *filename) {
 		arch_gba_thumb.init(pass);
 		arch_snes_cpu.init(pass);
 		arch_6502.init(pass);
+		arch_65c02.init(pass);
+		arch_65ce02.init(pass);
+		arch_huc6280.init(pass);
+		arch_spc700.init(pass);
 
 		if(assemble_file(filename) == false) return false;
 	}
@@ -144,7 +149,8 @@ xkas::xkas() :
 	arch_6502(*this),
 	arch_65c02(*this),
 	arch_65ce02(*this),
-	arch_huc6280(*this)
+	arch_huc6280(*this),
+	arch_spc700(*this)
 {}
 
 //========
@@ -255,6 +261,10 @@ bool xkas::assemble_command(string &s) {
 		} else if(part[1] == "huc6280" || part[1] == "pce.cpu" || part[1] == "tg16.cpu") {
 			endian = endian_lsb;
 			arch = &arch_huc6280;
+			return true;
+		} else if(part[1] == "spc700" || part[1] == "snes.smp") {
+			endian = endian_lsb;
+			arch = &arch_spc700;
 			return true;
 		}
 

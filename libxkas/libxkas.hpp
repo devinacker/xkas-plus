@@ -35,6 +35,7 @@ struct xkasArch {
 #include "arch/65c02.hpp"
 #include "arch/65ce02.hpp"
 #include "arch/huc6280.hpp"
+#include "arch/spc700.hpp"
 
 struct xkas {
 	enum Format { format_bin, format_IPS };
@@ -76,6 +77,7 @@ private:
 	xkas65c02 arch_65c02;
 	xkas65ce02 arch_65ce02;
 	xkasHuC6280 arch_huc6280;
+	xkasSPC700 arch_spc700;
 	friend class xkasNone;
 	friend class xkasGBATHUMB;
 	friend class xkasSNESCPU;
@@ -83,6 +85,7 @@ private:
 	friend class xkas65c02;
 	friend class xkas65ce02;
 	friend class xkasHuC6280;
+	friend class xkasSPC700;
 
 	struct Define {
 		string name;
