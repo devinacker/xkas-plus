@@ -560,7 +560,7 @@ bool xkasSPC700::assemble_dp() {
 	matchl("and",  "a",  0x24)
 	matchl("cmp",  "a",  0x64)
 	matchl("cmp",  "x",  0x3e)
-	matchl("cmp",  "y",  0x3e)
+	matchl("cmp",  "y",  0x7e)
 	matchl("cmpw", "ya", 0x5a)
 	matchl("eor",  "a",  0x44)
 	matchl("or",   "a",  0x04)
