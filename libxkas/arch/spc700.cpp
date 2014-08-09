@@ -32,7 +32,7 @@ bool xkasSPC700::assemble_command(string &s) {
 		self.write(0x01 + (tcall << 4));
 		return true;
 	}
-
+	
 	if(assemble_reg()) return true;
 	if(assemble_branch()) return true;
 	
@@ -48,7 +48,6 @@ bool xkasSPC700::assemble_command(string &s) {
 			force_test(); \
 			return _fn; \
 		}
-		
 	match("#", "",    assemble_const())
 	match("(", "+x)", assemble_indirect_x())
 	match("(", ")+y", assemble_indirect_y())
@@ -565,8 +564,8 @@ bool xkasSPC700::assemble_dp() {
 	matchl("eor",  "a",  0x44)
 	matchl("or",   "a",  0x04)
 	matchl("mov",  "a",  0xe4)
-	matchl("mov",  "x",  0xeb)
-	matchl("mov",  "y",  0xf8)
+	matchl("mov",  "x",  0xf8)
+	matchl("mov",  "y",  0xeb)
 	matchl("movw", "ya", 0xba)
 	matchl("sbc",  "a",  0xa4)
 	matchl("subw", "ya", 0x9a)
@@ -685,6 +684,7 @@ bool xkasSPC700::assemble_branch() {
 	if (subpart[0].wildcard("*+x")) {
 		subpart[0].rtrim<1>("+x");
 		matchb("cbne", 0xde)
+		subpart[0].append("+x");
 	}
 	// dbnz y, label
 	else if (subpart[0] == "y") {
