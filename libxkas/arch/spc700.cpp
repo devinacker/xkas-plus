@@ -126,8 +126,8 @@ bool xkasSPC700::assemble_const() {
 			unsigned a = self.decode(subpart[0]); \
 			unsigned n = self.decode(subpart[1]); \
 			self.write(hex_); \
-			self.write(a); \
 			self.write(n); \
+			self.write(a); \
 			return true; \
 		}
 
@@ -549,8 +549,8 @@ bool xkasSPC700::assemble_dp() {
 			unsigned m = self.decode(subpart[0]); \
 			unsigned n = self.decode(subpart[1]); \
 			self.write(hex_); \
-			self.write(m); \
 			self.write(n); \
+			self.write(m); \
 			return true; \
 		}
 	
