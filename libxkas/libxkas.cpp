@@ -424,8 +424,8 @@ bool xkas::assemble_command(string &s) {
 		subpart.split(",", part[1]);
 		unsigned offset = decode(subpart[0]);
 		uint8_t n = (subpart.size() == 1 ? state.fill_byte : decode(subpart[1]));
-		// offset is converted from arch->file->arch to handle bank mirroring correctly
-		while(arch->archaddr(binary.offset()) < arch->archaddr(arch->fileaddr(offset))) write(n);
+		// offset is converted from arch->file to handle bank mirroring correctly
+		while(arch->fileaddr(state.org) < arch->fileaddr(offset)) write(n);
 		return true;
 	}
 	
