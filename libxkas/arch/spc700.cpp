@@ -638,7 +638,7 @@ bool xkasSPC700::assemble_branch() {
 			int m = self.decode(subpart[0]); \
 			int n = self.decode(subpart[1]); \
 			if(!subpart[1].wildcard("$??")) { \
-				n = n - (self.pc() + 2); \
+				n = n - (self.pc() + 3); \
 			} \
 			if(self.pass == 2 && (n < -128 || n > 127)) { \
 				self.error = "branch target out of bounds"; \
