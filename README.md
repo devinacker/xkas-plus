@@ -1,6 +1,6 @@
-# xkas
+# xkas-plus (v14b1)
 
-This is a fork of xkas v14, because I like xkas v14 and wanna touch it up a bit. I may rename it later.
+This is a fork of xkas v14, because I like xkas v14 and wanted to touch it up a bit.
 
 ## What's new
 - Ability to assemble directly to an IPS patch instead of a binary (with the `-ips` switch)

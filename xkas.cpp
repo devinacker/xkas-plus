@@ -25,7 +25,7 @@ int main(int argc, char **argv) {
 	}
 
 	if(outputFilename == "" || inputFilename.size() == 0) {
-		print("xkas v14\n");
+		print("xkas-plus v14b1\n");
 		print("usage: xkas -o output.bin input.asm\n");
 		return 0;
 	}
