@@ -2,6 +2,8 @@
 
 This is a fork of xkas v14, because I like xkas v14 and wanted to touch it up a bit.
 
+As with the original, this code is in the public domain.
+
 ## What's new
 - Ability to assemble directly to an IPS patch instead of a binary (with the `-ips` switch)
 - New architecture options:
