@@ -20,7 +20,7 @@ int main(int argc, char **argv) {
 		
 		} else {
 			print("unrecognized option: ", argv[i], "\n");
-			return 0;
+			return 1;
 		}
 	}
 
@@ -31,13 +31,17 @@ int main(int argc, char **argv) {
 	}
 
 	xkas as;
+	unsigned err = 0;
 	as.open(outputFilename, format);
 	foreach(filename, inputFilename) {
-		if(as.assemble(filename) == false) break;
+		if(as.assemble(filename) == false) {
+		  err = 1;
+		  break;
+		}
 	}
-	if (exportFilename != "") {
+	if (!err && exportFilename != "") {
 		as.exportFile(exportFilename);
 	}
 	as.close();
-	return 0;
+	return err;
 }
