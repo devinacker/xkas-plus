@@ -12,6 +12,7 @@ As with the original, this code is in the public domain.
   - `65ce02` - CSG 65CE02 (untested)
   - `huc6280` / `pce.cpu` / `tg16.cpu` - Hudson HuC6280 (untested)
   - `spc700` / `snes.smp` - Sony SPC700
+    - See `test/test_spc.asm` for syntax examples (may be changed somewhat before release)
   - `65816` - identical to `snes.cpu`
 - Ability to export defines and labels to a separate file (with the `-e filename` switch)  
   Supported output formats:
