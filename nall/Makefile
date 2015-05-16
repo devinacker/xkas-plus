@@ -16,7 +16,7 @@
 
 ifeq ($(platform),)
   uname := $(shell uname -a)
-  ifeq ($(uname),)
+  ifdef SystemRoot
     platform := win
     delete = del $(subst /,\,$1)
   else ifneq ($(findstring Darwin,$(uname)),)
@@ -29,12 +29,10 @@ ifeq ($(platform),)
 endif
 
 ifeq ($(compiler),)
-  ifeq ($(platform),win)
-    compiler := gcc
-  else ifeq ($(platform),osx)
-    compiler := gcc-mp-4.5
+  ifeq ($(platform),osx)
+    compiler := clang++
   else
-    compiler := gcc-4.5
+    compiler := g++
   endif
 endif
 
