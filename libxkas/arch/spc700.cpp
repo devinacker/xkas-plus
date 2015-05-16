@@ -703,6 +703,8 @@ bool xkasSPC700::assemble_bit() {
 	// assemble the bitwise instructions with funky syntax
 	// (SET1 $dp, bit and CLR1 $dp, bit are currently handled TASM-style
 	//  by assemble_dp())
+	string temp;
+	
 	#define match(str_, part_, hex_) \
 		if (part[0] == str_) { \
 			unsigned mem = self.decode(subpart[part_]); \
@@ -721,9 +723,11 @@ bool xkasSPC700::assemble_bit() {
 			return true; \
 		}
 	#define matchn(str_, part_, hex_) \
-		if (subpart[part_].wildcard("/*")) { \
-			subpart[part_].ltrim<1>("/"); \
+		if (subpart[part_].wildcard("!*")) { \
+			temp = subpart[part_]; \
+			subpart[part_].ltrim<1>("!"); \
 			match(str_, part_, hex_)\
+			subpart[part_] = temp; \
 		}
 	
 	if (subpart.size() == 2) {
@@ -734,7 +738,7 @@ bool xkasSPC700::assemble_bit() {
 		matchn("or1",  1, 0x2a)
 		
 		match("and1", 1, 0x4a)
-		match("or1",  1, 0x2a)
+		match("or1",  1, 0x0a)
 		match("eor1", 1, 0x8a)
 		match("mov1", 1, 0xaa)
 		

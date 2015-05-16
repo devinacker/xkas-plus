@@ -27,8 +27,8 @@ and.w a, 0+x
 and.w a, 0+y
 and 0, 1
 and 0, #$ff
-and1 c, /0, 7
-and1 c, 0, 7
+and1 c, !$1234, 7
+and1 c, $1234, 7
 asl a
 asl.b 0
 asl 0+x
@@ -200,7 +200,7 @@ or.w a, 0+x
 or.w a, 0+y
 or 0, 1
 or 0, #0
-or1 c, /$200, 7
+or1 c, !$200, 7
 or1 c, $200, 7
 pcall 0
 pop a
