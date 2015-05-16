@@ -10,6 +10,19 @@
 #include "arch/huc6280.cpp"
 #include "arch/spc700.cpp"
 
+unsigned xkasArch::archaddr(unsigned addr) {
+	// assume the address to be found is within the current bank
+	unsigned base = (self.state.org / self.state.bank_size) * self.state.bank_size;
+	addr = base + (addr % self.state.bank_size);
+	return addr;
+}
+
+unsigned xkasArch::fileaddr(unsigned addr) {
+	// assume the address is within the current bank
+	addr = (self.state.bank * self.state.bank_size) + (addr % self.state.bank_size);
+	return addr;
+}
+
 bool xkas::open(const char *filename, unsigned fmt) {
 	//try and open existing file
 	//(or always create a new file when using a special format)
@@ -125,6 +138,8 @@ bool xkas::assemble(const char *filename) {
 		state.minus_label_counter = 1;
 		for(unsigned i = 0; i < 256; i++) state.table[i] = i;
 		state.fill_byte = 0;
+		state.bank = 0;
+		state.bank_size;
 
 		//arch
 		arch_none.init(pass);
@@ -344,6 +359,34 @@ bool xkas::assemble_command(string &s) {
 	//========
 	if(part[0] == "base" && part.size() == 2) {
 		state.base = decode(part[1]);
+		return true;
+	}
+	
+	//=========
+	//= banksize =
+	//=========
+	if (part[0] == "banksize" && part.size() == 2) {
+		unsigned n = decode(part[1]);
+		if (!n) {
+			error = "bank size cannot be zero";
+			return false;
+		} else if (n > 0x10000) {
+			error = "bank size cannot exceed $10000";
+			return false;
+		} else if (0x10000 % n) {
+			// since I can't think of any instance where it wouldn't...
+			error = "bank size must evenly divide $10000";
+			return false;
+		} 
+		state.bank_size = n;
+		return true;
+	}
+	
+	//=========
+	//= bank =
+	//=========
+	if (part[0] == "bank" && part.size() == 2) {
+		state.bank = decode(part[1]);
 		return true;
 	}
 

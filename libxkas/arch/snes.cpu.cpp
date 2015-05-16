@@ -8,7 +8,7 @@ unsigned xkasSNESCPU::archaddr(unsigned addr) {
 
 	switch(mapper) {
 		case NoROM: {
-			addr = addr & 0xffffff;
+			addr = xkasArch::archaddr(addr);
 			break;
 		}
 
@@ -41,7 +41,7 @@ unsigned xkasSNESCPU::archaddr(unsigned addr) {
 unsigned xkasSNESCPU::fileaddr(unsigned addr) {
 	switch(mapper) {
 		case NoROM: {
-			addr = addr & 0xffffff;
+			addr = xkasArch::fileaddr(addr);
 			break;
 		}
 

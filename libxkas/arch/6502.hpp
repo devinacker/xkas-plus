@@ -8,7 +8,6 @@ struct xkas6502 : xkasArch {
 private:
 	bool header;
 	bool force_byte, force_word;
-	unsigned bank_size, bank;
 	lstring part, subpart;
 
 	void force_test();

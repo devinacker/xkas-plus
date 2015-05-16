@@ -26,7 +26,6 @@ As with the original, this code is in the public domain.
   - `table` - allows you to specify a .tbl file to use for custom character encoding (up to four bytes per 8-bit character)
     - `cleartable` - restores the default encoding
   - `warnpc` - verifies that code is being assembled below a given address
-- Directives for `6502` / `nes.cpu`:
   - `bank` - set current program bank (default `0`)
   - `banksize` - set size of program banks (default/maximum `$10000`)
     - These two directives control the mapping between physical and logical addresses. For example:  
@@ -40,6 +39,8 @@ As with the original, this code is in the public domain.
     org $9000 // assembles to file offset $3000
     org $a000 // assembles to file offset $2000 (not $4000!)
 	```
+	- Note that for `65816` / `snes.cpu`, the `bank` and `banksize` settings are only relevant when the standard `lorom`, `hirom`, etc. address mapping modes aren't in effect (so that you can work with less common addressing setups, like with the SA-1).
+- Directives for `6502` / `nes.cpu`:
   - `header` / `noheader` - behave the same as their `snes.cpu` counterparts, but for a 16-byte iNES header instead of a 512-byte SNES copier header.
     - The default is `noheader`, so you can insert an iNES header manually before using the `header` directive for the actual ROM contents. The `header` directive does not generate an iNES header on its own.
     

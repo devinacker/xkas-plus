@@ -20,9 +20,9 @@ using namespace nall;
 struct xkas;
 
 struct xkasArch {
-	virtual void init(unsigned pass) = 0;
-	virtual unsigned archaddr(unsigned fileaddr) = 0;
-	virtual unsigned fileaddr(unsigned archaddr) = 0;
+	virtual void init(unsigned pass) {};
+	virtual unsigned archaddr(unsigned fileaddr);
+	virtual unsigned fileaddr(unsigned archaddr);
 	virtual bool assemble_command(string&) = 0;
 	xkasArch(xkas &self) : self(self) {}
 	xkas &self;
@@ -78,6 +78,7 @@ private:
 	xkas65ce02 arch_65ce02;
 	xkasHuC6280 arch_huc6280;
 	xkasSPC700 arch_spc700;
+	friend class xkasArch;
 	friend class xkasNone;
 	friend class xkasGBATHUMB;
 	friend class xkasSNESCPU;
@@ -111,6 +112,7 @@ private:
 		unsigned minus_label_counter;
 		uint64_t table[256];
 		uint8_t fill_byte;
+		unsigned bank_size, bank;
 	} state;
 
 	//tool

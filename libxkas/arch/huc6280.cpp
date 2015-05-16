@@ -1,51 +1,11 @@
 // Hudson Soft HuC6280 (TurboGrafx-16 / PC Engine)
 // based on 65c02.cpp
 
-void xkasHuC6280::init(unsigned pass) {
-	bank = 0;
-	bank_size = 0x10000;
-}
-
-unsigned xkasHuC6280::archaddr(unsigned addr) {
-	// assume the address to be found is within the current bank
-	unsigned base = (self.state.org / bank_size) * bank_size;
-	addr = base + (addr % bank_size);
-	return addr;
-}
-
-unsigned xkasHuC6280::fileaddr(unsigned addr) {
-	// assume the address is within the current bank
-	addr = (bank * bank_size) + (addr % bank_size);
-	return addr;
-}
-
 bool xkasHuC6280::assemble_command(string &s) {
 	part.qsplit<1>(" ", s);
 	part[0].lower();
 	part[0].trim(" ");
 	if(part.size() > 1) part[1].trim(" ");
-
-	if (part[0] == "banksize" && part.size() == 2) {
-		unsigned n = self.decode(part[1]);
-		if (!n) {
-			self.error = "bank size cannot be zero";
-			return false;
-		} else if (n > 0x10000) {
-			self.error = "bank size cannot exceed $10000";
-			return false;
-		} else if (0x10000 % n) {
-			// since I can't think of any instance where it wouldn't...
-			self.error = "bank size must evenly divide $10000";
-			return false;
-		} 
-		bank_size = n;
-		return true;
-	}
-	
-	if (part[0] == "bank" && part.size() == 2) {
-		bank = self.decode(part[1]);
-		return true;
-	}
 
 	if(part.size() == 1) {
 		if(assemble_direct()) return true;
