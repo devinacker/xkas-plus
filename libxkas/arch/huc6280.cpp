@@ -314,8 +314,8 @@ bool xkasHuC6280::assemble_test() {
 		self.write(force_byte ? 0xa3 : 0xb3);
 	} else return false;
 	
-	unsigned n = self.decode(subpart[1]);
-	unsigned a = self.decode(subpart[2]);
+	unsigned n = self.decode(subpart[0]);
+	unsigned a = self.decode(subpart[1]);
 	self.write(n);
 	self.write(a);
 	if (!force_byte) self.write(a >> 8);
