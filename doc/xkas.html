@@ -4,8 +4,8 @@
 <link href='style.css' rel='stylesheet' type='text/css'>
 </head>
 <body>
-<h1>xkas v14</h1>
-Author: byuu<br>
+<h1>xkas-plus v14+1</h1>
+Authors: byuu &amp; Revenant<br>
 License: public domain<br>
 <br>
 
@@ -16,10 +16,22 @@ License: public domain<br>
 <p>If the output file exists, xkas will assemble the source file on top of this
 file. If it does not exist, xkas will create the file.</p>
 
+<p>Passing the <code>-ips</code> switch will generate an IPS patch instead of
+creating or modifying a binary.</p>
+
+<p>Passing the <code>-e filename</code> switch will output an additional file
+containing all defines and labels from the input. Supported formats are:<br>
+&bull; *.asm (assembly include)<br>
+&bull; *.ram.nl (FCEUX debug symbols, labels only)<br>
+&bull; *.vs (VICE debug symbols, labels only)<br>
+</p>
+
 <p>Usage examples:</p>
 <code>xkas -o output.bin input.asm</code><br>
 <code>xkas -o output.bin input1.asm input2.asm</code><br>
 <code>xkas input1.asm input2.asm -o output.bin</code><br>
+<code>xkas -ips -o output.ips input.asm</code><br>
+<code>xkas -o output.bin -e export.asm input.asm</code><br>
 <br>
 
 <h3>Commands:</h3>
@@ -31,7 +43,12 @@ file. If it does not exist, xkas will create the file.</p>
 <p>Supported values:</p>
 <code>none</code> - None; uses base commands only<br>
 <code>gba.thumb</code> - GBA THUMB CPU (ARM7TDMI THUMB)<br>
-<code>snes.cpu</code> - SNES CPU (WDC 65816)<br>
+<code>snes.cpu</code> / <code>65816</code> - SNES CPU (WDC 65816)<br>
+<code>snes.smp</code> / <code>spc700</code> - SNES SMP (Sony SPC700)<br>
+<code>nes.cpu</code> / <code>6502</code> - NES CPU (MOS 6502)<br>
+<code>tg16.cpu</code> / <code>pce.cpu</code> / <code>huc6280</code> - TG-16 / PC Engine CPU (Hudson HuC6280)<br>
+<code>65c02</code> - WDC 65C02 / 65SC02<br>
+<code>65ce02</code> - CSG 65CE02<br>
 <br>
 
 <h4>endian type</h4>
@@ -56,14 +73,14 @@ eg all defines and labels will remain in-tact.</p>
 
 <p>Insert binary file directly into output.</p>
 
-<h4>org offset</h4>
+<h4>org address</h4>
 
 <p>Seek to specified offset. Offset address relativity to output file is based
 upon the current architecture. Eg if arch = snes.cpu, org should be an
 SNES-memory-mapped offset. For arch = none, this is a literal offset into the
 output file.</p>
 
-<h4>base offset</h4>
+<h4>base address</h4>
 
 <p>Override internal org address when computing eg labels. This is useful for
 relocatable code and custom address mapping.</p>
@@ -76,16 +93,46 @@ loop:<br>
 jml loop //will assemble as jml $7f0002; while writing to pc($c02002)</code>
 <br><br>
 
+<h4>bank num</h4>
+<h4>banksize size</h4>
+
+<p>These two directives control the mapping between physical and logical addresses
+for systems which use bank-switched memory (such as most NES games).</p>
+
+<p><b>banksize</b> sets the size of each program bank (default/maximum $10000),
+and <b>bank</b> selects a program bank to use. For example:</p>
+
+<code>banksize $2000<br>
+bank 0<br>
+org $8000 // assembles to file offset $0000<br>
+org $9000 // assembles to file offset $1000<br>
+bank 1<br>
+org $8000 // assembles to file offset $2000<br>
+org $9000 // assembles to file offset $3000<br>
+org $a000 // assembles to file offset $2000 (not $4000!)
+<br><br></code>
+
+<p>Note that for 65816 / snes.cpu, the bank and banksize settings are only relevant
+when the standard lorom, hirom, etc. address mapping modes aren't in effect (so that
+you can work with less common addressing setups, like with the SA-1).</p>
+
+<h4>warnpc address</h4>
+
+<p>Emits an error if the current output address (using CPU addressing) is
+higher than or equal to a specified address.</p>
+
 <h4>align modulus</h4>
 
 <p>Write 0x00s until offset is evenly divisible by modulus. Eg if offset is
 $8011, "align 4" will write three 0x00s, aligning offset to a 4-byte boundary;
 in this case, $8014.</p>
 
+<h4>warnpc </h4>
+
 <h4>db / dw / dl / dd value [, value, "string", ...]</h4>
 
 <p>Simple binary data insertion. These commands additionaly support
-quote-delimited 7-bit ANSI encoded strings.</p>
+quote-delimited strings.</p>
 
 <code>db</code> - Data byte (8-bits)<br>
 <code>dw</code> - Data word (16-bits)<br>
@@ -98,10 +145,16 @@ quote-delimited 7-bit ANSI encoded strings.</p>
 <p>Writes "length" number of bytes to output file. If value is not specified,
 write value is 0x00.</p>
 
-<h4>fillto offset [, value]</h4>
+<h4>fillto offset [, value]</h4><br>
+<h4>pad offset [, value]</h4>
 
 <p>Writes until "offset" is reached. If value is not specified, write value is
-0x00.</p>
+0x00 (or another default value, see below).</p>
+
+<h4>fillbyte value</h4>
+<h4>padbyte value</h4>
+
+<p>Sets a new default value for <b>fill</b> and <b>fillto / pad</b>.</p>
 
 <h4>define name "value"</h4>
 
@@ -117,7 +170,7 @@ define health_bonus 32<br>
 
 <h4>define 'char' value</h4>
 
-<p>Redefine string table entry. "char" must be exactly one ANSI character in
+<p>Redefine character table entry. "char" must be exactly one 8-bit character in
 length, and "value" must resolve to an integer.</p>
 
 <p>Usage example:</p>
@@ -127,6 +180,39 @@ lda.b #'C'  //will assemble as lda.b #$34<br>
 lda.w #'C'  //will assemble as lda.w #$1234<br>
 dw "C"  //will write #$1234 to output<br>
 <br><br>
+</code>
+
+<h4>table filename.tbl</h4>
+<h4>table filename.tbl,ltr</h4>
+<h4>table filename.tbl,rtl</h4>
+
+<p>Uses a table file to redefine the values of multiple characters at once.
+The file is a plain text file with one character per line, following either of
+two possible formats:</p>
+
+<code>21=A<br>
+22=B<br>
+23=C<br>
+24=D<br>
+<br>
+A=21<br>
+B=22<br>
+C=23<br>
+D=24
+<br><br>
+</code>
+
+<p>The format can be detected automatically, but you may also specify
+a format by appending <b>,ltr</b> (val=char) or <b>,rtl</b> (char=val) to
+the file name.</p>
+
+<p>As with using <b>define</b> to specify character values, the character
+must be a single byte, and the value can be any 64-bit integer.</p>
+
+<h4>cleartable</h4>
+
+<p>Restores the default character table, undoing any characters that were
+defined using <b>define</b> or <b>table</b>.</p>
 
 <h4>label:</h4>
 
