@@ -185,10 +185,12 @@ bool xkas::assemble_file(const char *filename) {
 
 	for(unsigned l = 0; l < line.size(); l++) {
 		if(auto position = qstrpos(line[l], "//")) line[l][position()] = 0;  //strip comments
+		
+		assemble_defines(line[l]);
+		
 		line[l].qreplace("\t", " ");
 		while(qstrpos(line[l], "  ")) line[l].qreplace("  ", " ");  //drop extra whitespace
 		line[l].qreplace(", ", ",");
-		assemble_defines(line[l]);
 
 		lstring block;
 		block.qsplit(";", line[l]);
@@ -225,7 +227,9 @@ void xkas::assemble_defines(string &s) {
 			for(unsigned i = 0; i < state.define.size(); i++) {
 				if(name == state.define[i].name) {
 					s = string(
-						substr(s, 0, start - 1),  //-1 = exclude '{'
+						// don't copy the beginning of the string if start = 1
+						// (since passing a length of 0 to substr copies the entire string)
+						start > 1 ? substr(s, 0, start - 1) : "",  //-1 = exclude '{'
 						state.define[i].value,
 						substr(s, end + 1)        //+1 = exclude '}'
 					);
