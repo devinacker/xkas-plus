@@ -40,7 +40,7 @@ struct xkasArch {
 struct xkas {
 	enum Format { format_bin, format_IPS };
 	enum Export { export_asm, export_FCEUX, export_VICE };
-	bool open(const char *filename, unsigned fmt = format_bin);
+	bool open(const char *filename, unsigned fmt = format_bin, bool create_new = false);
 	bool assemble(const char *filename);
 	bool exportFile(const char *filename);
 	void close();

@@ -4,11 +4,15 @@ int main(int argc, char **argv) {
 	xkas::Format format = xkas::format_bin;
 	string outputFilename, exportFilename;
 	lstring inputFilename;
+    bool create_new = false;
 
 	for(unsigned i = 1; i < argc; i++) {
 		if(!strcmp(argv[i], "-o") && argc >= i + 1) {
 			outputFilename = argv[++i];
 		
+        } else if(!strcmp(argv[i], "-create")) {
+            create_new = true;
+            
 		} else if(!strcmp(argv[i], "-e") && argc >= i + 1) {
 			exportFilename = argv[++i];
 		
@@ -32,7 +36,7 @@ int main(int argc, char **argv) {
 
 	xkas as;
 	unsigned err = 0;
-	as.open(outputFilename, format);
+	as.open(outputFilename, format, create_new);
 	foreach(filename, inputFilename) {
 		if(as.assemble(filename) == false) {
 		  err = 1;
