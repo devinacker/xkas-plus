@@ -23,7 +23,7 @@ unsigned xkasArch::fileaddr(unsigned addr) {
 	return addr;
 }
 
-bool xkas::open(const char *filename, unsigned fmt) {
+bool xkas::open(const char *filename, unsigned fmt, bool create_new) {
 	//try and open existing file
 	//(or always create a new file when using a special format)
 	if(fmt != format_bin || binary.open(filename, file::mode::readwrite) == false) {
@@ -32,7 +32,11 @@ bool xkas::open(const char *filename, unsigned fmt) {
 			//if unable to create, fail
 			return false;
 		}
-	}
+	} else if(create_new == true) {
+	    binary.open(filename, file::mode::write);
+        binary.close();
+        binary.open(filename, file::mode::write);
+    }
 	
 	format = fmt;
 	
