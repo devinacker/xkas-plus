@@ -190,11 +190,12 @@ bool xkas::assemble_file(const char *filename) {
 		current_line.assign(line.c_str());
 
 		if(auto position = qstrpos(current_line, "//")) current_line[position()] = 0;  //strip comments
+
+		assemble_defines(current_line);
+
 		current_line.qreplace("\t", " ");
 		while(qstrpos(current_line, "  ")) current_line.qreplace("  ", " ");  //drop extra whitespace
 		current_line.qreplace(", ", ",");
-
-		assemble_defines(current_line);
 
 		lstring block;
 		block.qsplit(";", current_line);
