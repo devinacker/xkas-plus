@@ -10,6 +10,9 @@
 #include "arch/huc6280.cpp"
 #include "arch/spc700.cpp"
 
+#include <fstream>
+#include <string>
+
 unsigned xkasArch::archaddr(unsigned addr) {
 	// assume the address to be found is within the current bank
 	unsigned base = (self.state.org / self.state.bank_size) * self.state.bank_size;
@@ -33,9 +36,9 @@ bool xkas::open(const char *filename, unsigned fmt) {
 			return false;
 		}
 	}
-	
+
 	format = fmt;
-	
+
 	patch_addr = 0;
 	if (format == format_IPS) {
 		// write IPS header
@@ -47,22 +50,22 @@ bool xkas::open(const char *filename, unsigned fmt) {
 bool xkas::exportFile(const char *filename) {
 	file exp;
 	if (!exp.open(filename, file::mode::write)) return false;
-	
+
 	unsigned fmt = export_asm;
 	if      (strend(filename, ".ram.nl")) fmt = export_FCEUX;
 	else if (strend(filename, ".vs"))     fmt = export_VICE;
-	
+
 	// export defines
 	foreach(define, state.define) {
 		switch (fmt) {
 		case export_asm:
 			exp.print<string>({"define ", define.name, " \"", define.value, "\"\n"});
 			break;
-		
+
 		// TODO: export defines for FCEUX and VICE?
 		}
 	}
-	
+
 	// export labels
 	string ns, lname;
 	lstring name;
@@ -70,14 +73,14 @@ bool xkas::exportFile(const char *filename) {
 		// skip anonymous labels
 		if (label.name[0] == '+' || label.name[0] == '-')
 			continue;
-	
+
 		name.split("::", label.name);
 		if (name[0] == "global") {
 			lname = name[1];
 		} else {
 			lname = label.name;
 		}
-		
+
 		switch (fmt) {
 		// regular xkas include
 		case export_asm:
@@ -88,24 +91,24 @@ bool xkas::exportFile(const char *filename) {
 			}
 			exp.print<string>({"base $", strhex<4>(label.offset), "; ", name[1], ":\n"});
 			break;
-		
+
 		// FCEUX symbol file (*.ram.nl)
 		case export_FCEUX:
 			exp.print<string>({"$", strhex<4>(label.offset), "#", lname, "#\n"});
 			break;
-		
+
 		// VICE symbol file (*.vs)
 		case export_VICE:
 			exp.print<string>({"al C:", strhex(label.offset), " .", lname, "\n"});
 			break;
 		}
 	}
-	
+
 	// export_asm: reset namespace after defining all labels
 	if (fmt == export_asm && ns != "global") {
 		exp.print("namespace global\n");
 	}
-	
+
 	exp.close();
 	return true;
 }
@@ -116,7 +119,7 @@ void xkas::close() {
 		// write IPS EOF
 		binary.write((const uint8_t*)"EOF", 3);
 	}
-	
+
 	binary.close();
 }
 
@@ -157,9 +160,9 @@ bool xkas::assemble(const char *filename) {
 	return true;
 }
 
-xkas::xkas() : 
-	arch_none(*this), 
-	arch_gba_thumb(*this), 
+xkas::xkas() :
+	arch_none(*this),
+	arch_gba_thumb(*this),
 	arch_snes_cpu(*this),
 	arch_6502(*this),
 	arch_65c02(*this),
@@ -177,32 +180,36 @@ unsigned xkas::pc() const {
 }
 
 bool xkas::assemble_file(const char *filename) {
-	string data;
-	if(data.readfile(filename) == false) return false;
-	data.replace("\r", "");
-	lstring line;
-	line.split("\n", data);
+	std::ifstream asm_file(filename);
+	std::string line;
+	int line_num = 1;
 
-	for(unsigned l = 0; l < line.size(); l++) {
-		if(auto position = qstrpos(line[l], "//")) line[l][position()] = 0;  //strip comments
-		
-		assemble_defines(line[l]);
-		
-		line[l].qreplace("\t", " ");
-		while(qstrpos(line[l], "  ")) line[l].qreplace("  ", " ");  //drop extra whitespace
-		line[l].qreplace(", ", ",");
+	while (std::getline(asm_file, line)) {
+		//get current line as nall string
+		string current_line;
+		current_line.assign(line.c_str());
+
+		if(auto position = qstrpos(current_line, ";")) current_line[position()] = 0;  //strip comments
+
+		assemble_defines(current_line);
+
+		current_line.qreplace("\t", " ");
+		while(qstrpos(current_line, "  ")) current_line.qreplace("  ", " ");  //drop extra whitespace
+		current_line.qreplace(", ", ",");
 
 		lstring block;
-		block.qsplit(";", line[l]);
+		block.qsplit("//", current_line);
 		for(unsigned b = 0; b < block.size(); b++) {
 			block[b].trim(" ");  //trim start and end whitespace
 			if(block[b] == "") continue;  //ignore blank blocks
 			if(assemble_command(block[b]) == false) {
-				print("xkas error: pass ", pass, ", line ", l + 1, ":", b + 1, ": \"", block[b], "\"\n");
+				print("xkas error: pass ", pass, ", line ", line_num, ":", b + 1, ": \"", block[b], "\"\n");
 				if(error != "") print(error, "\n");  //print detailed error message, if one exists
 				return false;
 			}
 		}
+
+		++line_num;
 	}
 
 	return true;
@@ -339,12 +346,12 @@ bool xkas::assemble_command(string &s) {
 		state.org = state.base = decode(part[1]);
 		if(pass == 2)  {
 			unsigned fileaddr = arch->fileaddr(state.org);
-			
+
 			switch (format) {
 			default:
 				binary.seek(fileaddr);
 				break;
-				
+
 			case format_IPS:
 				// IPS patches are limited to 24-bit addresses
 				if (fileaddr >= 0x1000000) {
@@ -365,7 +372,7 @@ bool xkas::assemble_command(string &s) {
 		state.base = decode(part[1]);
 		return true;
 	}
-	
+
 	//=========
 	//= banksize =
 	//=========
@@ -381,11 +388,11 @@ bool xkas::assemble_command(string &s) {
 			// since I can't think of any instance where it wouldn't...
 			error = "bank size must evenly divide $10000";
 			return false;
-		} 
+		}
 		state.bank_size = n;
 		return true;
 	}
-	
+
 	//=========
 	//= bank =
 	//=========
@@ -438,7 +445,7 @@ bool xkas::assemble_command(string &s) {
 		fp.close();
 		return true;
 	}
-	
+
 	//==========
 	//= warnpc =
 	//==========
@@ -450,7 +457,7 @@ bool xkas::assemble_command(string &s) {
 		}
 		return true;
 	}
-	
+
 	//========
 	//= fill =
 	//========
@@ -475,7 +482,7 @@ bool xkas::assemble_command(string &s) {
 		while(arch->fileaddr(state.org) < arch->fileaddr(offset)) write(n);
 		return true;
 	}
-	
+
 	//============
 	//= fillbyte =
 	//============
@@ -485,7 +492,7 @@ bool xkas::assemble_command(string &s) {
 			error = "fill value out of bounds";
 			return false;
 		}
-		
+
 		state.fill_byte = n;
 		return true;
 	}
@@ -713,7 +720,7 @@ bool xkas::assemble_command(string &s) {
 		state.active_namespace = part[1];
 		return true;
 	}
-	
+
 	//=========
 	//= table =
 	//=========
@@ -730,7 +737,7 @@ bool xkas::assemble_command(string &s) {
 			error = "expected \"filename,ltr\" or \"filename,rtl\"";
 			return false;
 		}
-		
+
 		name[0].trim<1>("\"");
 		string data;
 		if(data.readfile(name[0]) == false) {
@@ -740,35 +747,35 @@ bool xkas::assemble_command(string &s) {
 		data.replace("\r", "");
 		lstring line;
 		line.split("\n", data);
-		
+
 		for(unsigned l = 0; l < line.size(); l++) {
 			lstring thisline;
 			thisline.split("=", line[l]);
 			uint64_t val;
 			char ch;
-			
+
 			// val=char
 			if (!force_rtl && line[l].wildcard("*=?")) {
 				val = strtol(thisline[0], 0, 16);
 				ch = thisline[1][0];
-				
+
 			// char=val
 			} else if (!force_ltr && line[l].wildcard("?=*")) {
 				val = strtol(thisline[1], 0, 16);
 				ch = thisline[0][0];
-				
+
 			} else {
 				error = "invalid table entry on line ";
 				error.append(l + 1).append(": ").append(line[l]);
 				return false;
 			}
-			
+
 			state.table[ch] = val;
 		}
-		
+
 		return true;
 	}
-	
+
 	//==============
 	//= cleartable =
 	//==============
@@ -808,7 +815,7 @@ void xkas::write(uint8_t data) {
 		default:
 			binary.write(data);
 			break;
-		
+
 		case format_IPS:
 			unsigned fileaddr = arch->fileaddr(state.org);
 			// write to patch data buffer, check if a new record needs to be written
@@ -819,7 +826,7 @@ void xkas::write(uint8_t data) {
 			           patch_data.size() == 0xFFFF) {
 				write_IPS();
 			}
-			
+
 			patch_data.append(data);
 			break;
 		}
@@ -839,7 +846,7 @@ void xkas::write_IPS() {
 	binary.write(patch_data.size());
 	// record data
 	binary.write(&patch_data[0], patch_data.size());
-	
+
 	patch_addr = arch->fileaddr(state.org);
 	patch_data.reset();
 }
