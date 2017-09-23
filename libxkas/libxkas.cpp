@@ -189,7 +189,7 @@ bool xkas::assemble_file(const char *filename) {
 		string current_line;
 		current_line.assign(line.c_str());
 
-		if(auto position = qstrpos(current_line, "//")) current_line[position()] = 0;  //strip comments
+		if(auto position = qstrpos(current_line, ";")) current_line[position()] = 0;  //strip comments
 
 		assemble_defines(current_line);
 
@@ -198,7 +198,7 @@ bool xkas::assemble_file(const char *filename) {
 		current_line.qreplace(", ", ",");
 
 		lstring block;
-		block.qsplit(";", current_line);
+		block.qsplit("//", current_line);
 		for(unsigned b = 0; b < block.size(); b++) {
 			block[b].trim(" ");  //trim start and end whitespace
 			if(block[b] == "") continue;  //ignore blank blocks
